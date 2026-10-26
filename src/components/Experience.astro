@@ -1,0 +1,153 @@
+---
+import Section from './Section.astro';
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const e = content[lang].experience;
+---
+
+<Section id="experience" title={e.title}>
+  <!-- Una cota continua: cada empleo es una estaca sobre la línea y los años se leen al costado -->
+  <ol class="jobs">
+    {
+      e.jobs.map((job) => (
+        <li class="job">
+          <p class="when">{job.span}</p>
+          <div class="body">
+            <h3>{job.company}</h3>
+            {job.roles.map((role) => (
+              <div class="role">
+                <h4>{role.title}</h4>
+                <p class="meta">{role.period !== job.span ? `${role.period}, ${role.mode}` : role.mode}</p>
+                <ul>
+                  {role.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</Section>
+
+<style>
+  .jobs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .job {
+    display: grid;
+  }
+
+  /* Móvil: los años y el cuerpo comparten la línea */
+  .when,
+  .body {
+    position: relative;
+    border-left: 2px solid var(--color-ink);
+    padding-left: 1.5rem;
+  }
+  .when {
+    padding-top: 0.25rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.375rem;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .body {
+    padding-bottom: 3rem;
+  }
+  .job:last-child .body {
+    padding-bottom: 0;
+  }
+
+  /* Estaca del empleo */
+  .when::before,
+  .body::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    background: var(--color-signal);
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+  .body::before {
+    display: none;
+  }
+  .job:hover .when::before,
+  .job:hover .body::before {
+    transform: scale(1.4);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+  }
+  .role {
+    margin-top: 1.5rem;
+  }
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.375rem;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+  }
+  .role ul {
+    margin-top: 0.75rem;
+    max-width: 40rem;
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+  }
+  .role li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  .role li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.8em;
+    width: 0.5rem;
+    height: 2px;
+    background: var(--color-ink);
+  }
+
+  /* Escritorio: los años quedan a la izquierda, pegados a la cota */
+  @media (min-width: 768px) {
+    .job {
+      grid-template-columns: 11rem 1fr;
+    }
+    .when {
+      border-left: 0;
+      padding: 0.25rem 2rem 0 0;
+      text-align: right;
+      font-size: 1.5rem;
+    }
+    .when::before {
+      display: none;
+    }
+    .body {
+      padding-left: 2.5rem;
+    }
+    .body::before {
+      display: block;
+    }
+  }
+</style>

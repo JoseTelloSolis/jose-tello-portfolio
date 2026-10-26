@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import { content, person, homePath, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].meta;
+const site = Astro.site;
+const abs = (path: string) => (site ? new URL(path, site).href : path);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: 'Full Stack Developer',
+  email: person.email,
+  telephone: person.phone,
+  address: { '@type': 'PostalAddress', addressLocality: 'Lima', addressCountry: 'PE' },
+  sameAs: [person.linkedin, person.github],
+  knowsLanguage: ['es', 'en'],
+  knowsAbout: ['PHP', 'Laravel', 'Vue.js', 'Angular', 'React', 'MySQL', 'PostgreSQL', 'Software architecture'],
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.title}</title>
+    <meta name="description" content={t.description} />
+    <meta name="theme-color" content="#edf1f3" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="alternate" hreflang="es" href={abs(homePath('es'))} />
+    <link rel="alternate" hreflang="en" href={abs(homePath('en'))} />
+    <link rel="alternate" hreflang="x-default" href={abs(homePath('es'))} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={t.title} />
+    <meta property="og:description" content={t.description} />
+    <meta property="og:locale" content={t.locale} />
+    {/* La imagen al compartir necesita URL absoluta, así que solo se emite si el sitio tiene `site` */}
+    {
+      site && (
+        <>
+          <meta property="og:image" content={abs('/og.png')} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={t.title} />
+        </>
+      )
+    }
+    <meta name="twitter:card" content={site ? 'summary_large_image' : 'summary'} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body id="top-of-page">
+    <slot />
+  </body>
+</html>

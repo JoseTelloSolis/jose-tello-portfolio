@@ -1,0 +1,85 @@
+---
+import Section from './Section.astro';
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const a = content[lang].about;
+const [lead, ...rest] = a.paragraphs;
+---
+
+<Section id="about" title={a.title}>
+  <div class="layout">
+    <div class="text">
+      <p class="lead">{lead}</p>
+      {rest.map((p) => <p class="body">{p}</p>)}
+    </div>
+
+    <!-- Ficha de datos: lo que un reclutador busca, en una sola columna de lectura -->
+    <dl class="facts">
+      {
+        a.facts.map((f) => (
+          <div class="fact">
+            <dt>{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</Section>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 3rem;
+  }
+  .text {
+    max-width: 38rem;
+  }
+  .lead {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .body {
+    margin-top: 1.5rem;
+    color: var(--color-slate);
+  }
+
+  .facts {
+    border-top: 1px solid var(--color-line);
+  }
+  .fact {
+    display: grid;
+    gap: 0.25rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  dt {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+  }
+  dd {
+    max-width: 34rem;
+  }
+
+  @media (min-width: 640px) {
+    .fact {
+      grid-template-columns: 8rem 1fr;
+      gap: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .layout {
+      grid-template-columns: 7fr 5fr;
+      gap: 5rem;
+      align-items: start;
+    }
+  }
+</style>

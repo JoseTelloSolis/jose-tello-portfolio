@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import photo from '../assets/jose.jpg';
+import { content, person, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const h = content[lang].hero;
+const cv = lang === 'es' ? person.cvEs : person.cvEn;
+
+/*
+  El retrato es un lote en una hoja de levantamiento (el primer trabajo de Jose fue una
+  consulta de catastro). Vértices en % del ancho y alto de la foto: el lindero recorta la
+  imagen, las estacas marcan los vértices y una segunda impresión desplazada se "registra"
+  sobre el lote al pasar el cursor.
+*/
+const pts: [number, number][] = [
+  [0, 7],
+  [9, 0],
+  [100, 0],
+  [100, 91],
+  [90, 100],
+  [0, 100],
+];
+const H = (photo.height / photo.width) * 100;
+const clip = 'polygon(' + pts.map(([x, y]) => `${x}% ${y}%`).join(', ') + ')';
+const svgPts = pts.map(([x, y]) => `${x},${((y / 100) * H).toFixed(2)}`).join(' ');
+const viewBox = `0 0 100 ${H.toFixed(2)}`;
+---
+
+<div class="relative overflow-hidden">
+  <div class="plano pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+  <div
+    class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pb-24 pt-12 md:grid-cols-12 md:gap-8 md:px-8 md:pb-24 md:pt-16"
+  >
+    <div class="md:col-span-7">
+      <p class="meta flex items-center gap-3">
+        <span class="size-2 shrink-0 bg-signal" aria-hidden="true"></span>
+        {h.status}
+      </p>
+
+      <h1 class="mt-6 font-extrabold uppercase leading-[0.93] tracking-normal text-[clamp(4.5rem,12.5vw,9.5rem)]">
+        <span class="block">Jose Tello</span>
+        <span class="block">Solís</span>
+      </h1>
+
+      <p class="mt-2 font-display text-[1.5rem] font-semibold tracking-[0.03em] sm:text-[1.75rem]">{h.role}</p>
+
+      <p class="mt-8 max-w-[30ch] text-[1.75rem] font-medium leading-[1.2] sm:text-[2rem]">
+        {h.headline}
+      </p>
+      <p class="mt-4 max-w-[52ch] text-slate">{h.intro}</p>
+
+      <!-- Único punto de descarga del CV: entrega el archivo del idioma de la página
+           (español en /, inglés en /en/), así que cambia junto con el selector ES/EN. -->
+      <div class="mt-12 flex flex-wrap gap-3">
+        <a href={cv} download class="btn btn-solid">{h.ctaCv}</a>
+        <a href="#projects" class="btn btn-line">{h.ctaProjects}</a>
+      </div>
+    </div>
+
+    <figure class="lote relative mx-auto w-full max-w-[24rem] pl-10 md:col-span-5 md:mx-0 md:ml-auto">
+      <div class="relative">
+        <svg class="registro absolute inset-0 h-full w-full text-slate" viewBox={viewBox} aria-hidden="true">
+          <polygon points={svgPts} fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.7"></polygon>
+        </svg>
+
+        <!-- La foto se funde con el papel (multiply): el blanco del fondo toma el tono del plano -->
+        <Image
+          src={photo}
+          alt={h.photoAlt}
+          width={640}
+          loading="eager"
+          class="relative block h-auto w-full mix-blend-multiply"
+          style={`clip-path: ${clip}`}
+        />
+
+        <svg class="absolute inset-0 h-full w-full overflow-visible text-signal" viewBox={viewBox} aria-hidden="true">
+          <polygon
+            class="lindero"
+            points={svgPts}
+            pathLength="1"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="0.8"
+            stroke-linejoin="miter"></polygon>
+        </svg>
+
+        {
+          pts.map(([x, y], i) => (
+            <span
+              class="estaca absolute size-3 -translate-x-1/2 -translate-y-1/2 bg-signal"
+              style={`left:${x}%;top:${y}%;animation-delay:${(0.35 + i * 0.25).toFixed(2)}s`}
+              aria-hidden="true"
+            />
+          ))
+        }
+
+        <!-- Cota: mide los años de oficio -->
+        <div class="absolute inset-y-0 -left-8 w-2 border-l-2 border-ink" aria-hidden="true">
+          <span class="absolute -left-0.5 top-0 h-0.5 w-2 bg-ink"></span>
+          <span class="absolute -left-0.5 bottom-0 h-0.5 w-2 bg-ink"></span>
+        </div>
+        <span
+          class="meta absolute -left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-180 whitespace-nowrap bg-paper px-1 py-2 font-semibold !text-ink [writing-mode:vertical-rl]"
+          aria-hidden="true"
+        >
+          {h.dimension}
+        </span>
+      </div>
+    </figure>
+  </div>
+</div>

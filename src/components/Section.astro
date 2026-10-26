@@ -1,0 +1,55 @@
+---
+/*
+  Contenedor común de las secciones. La cabecera funciona como el cuadro de rotulación de
+  una lámina: una línea de grafito y el título en condensada. Mismo ritmo en todo el sitio:
+  96 px entre secciones en escritorio, 64 px en móvil, y 48 px entre cabecera y contenido.
+*/
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<section id={id} aria-labelledby={`${id}-title`} class="section">
+  <div class="wrap">
+    <div class="head">
+      <h2 id={`${id}-title`}>{title}</h2>
+    </div>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-top: 4rem;
+  }
+  .wrap {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  .head {
+    margin-bottom: 3rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-ink);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.75rem, 7vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .section {
+      padding-top: 6rem;
+    }
+    .wrap {
+      padding-inline: 2rem;
+    }
+  }
+</style>

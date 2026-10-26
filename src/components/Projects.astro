@@ -1,0 +1,199 @@
+---
+import Section from './Section.astro';
+import { content, person, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const p = content[lang].projects;
+const L = p.labels;
+
+const rowsOf = (item: (typeof p.items)[number]) =>
+  [
+    [L.what, item.what],
+    [L.role, item.role],
+    [L.result, item.result],
+    [L.stack, item.stack],
+  ].filter((row): row is [string, string] => Boolean(row[1]));
+---
+
+<Section id="projects" title={p.title}>
+  <div class="list">
+    {
+      p.items.map((item) => (
+        <article class="project">
+          <header>
+            <h3>{item.title}</h3>
+            <p class="meta">
+              {item.context}
+              {item.period ? `, ${item.period}` : ''}
+            </p>
+            {item.links && (
+              <p class="links">
+                {item.links.map((l) => (
+                  <a
+                    href={l.href}
+                    class="link"
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`${l.label}: ${item.title}`}
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </p>
+            )}
+          </header>
+
+          <dl>
+            {rowsOf(item).map(([label, value]) => (
+              <div class="row">
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="more">
+    <h3>{p.more.title}</h3>
+    <p class="meta">{p.more.text}</p>
+    <ul>
+      {
+        p.more.repos.map((r) => (
+          <li>
+            <a href={r.href} class="link" target="_blank" rel="noopener">
+              {r.name}
+            </a>
+            <span class="meta">{r.lang}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p>
+      <a href={person.github} class="link" target="_blank" rel="noopener">github.com/JoseTelloSolis</a>
+    </p>
+  </div>
+</Section>
+
+<style>
+  /* Cada proyecto es una fila de la lista. Al pasar el cursor se tiñe y una barra de cinta
+     baja por el costado: respuesta inmediata sin mover el contenido. */
+  .project {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
+    margin-inline: -1rem;
+    padding: 2rem 1rem;
+    border-top: 1px solid var(--color-line);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .project:first-child {
+    border-top-color: transparent;
+  }
+  .project::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-signal);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .project:hover {
+    background: color-mix(in srgb, var(--color-paper-deep) 70%, transparent);
+  }
+  .project:hover::before {
+    transform: scaleY(1);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1.02;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+  header .meta {
+    margin-top: 0.5rem;
+  }
+  .links {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+  }
+  .link {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  dl {
+    display: grid;
+    gap: 1rem;
+  }
+  .row {
+    display: grid;
+    gap: 0.125rem;
+  }
+  dt {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+  }
+  dd {
+    max-width: 38rem;
+  }
+
+  .more {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--color-ink);
+  }
+  .more h3 {
+    font-size: 1.75rem;
+  }
+  .more > .meta {
+    margin-top: 0.5rem;
+  }
+  .more ul {
+    margin-top: 1.5rem;
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .more li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding-block: 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .more p:last-child {
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .project {
+      grid-template-columns: 18rem 1fr;
+      gap: 3rem;
+    }
+    .row {
+      grid-template-columns: 8rem 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

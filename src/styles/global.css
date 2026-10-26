@@ -1,0 +1,255 @@
+@import "tailwindcss";
+@import "@fontsource-variable/big-shoulders-display";
+@import "@fontsource-variable/newsreader/wght.css";
+@import "@fontsource-variable/newsreader/wght-italic.css";
+
+/*
+  Identidad: hoja de levantamiento.
+  Papel de campo verde grisáceo, grafito de lápiz de topógrafo y un único color de marca,
+  el rosa de la cinta con la que se marcan los linderos. Ese color solo se usa en estacas,
+  subrayados y foco: nunca como fondo de un bloque grande.
+*/
+@theme {
+  --color-paper: #e7eae3;
+  --color-paper-deep: #dadfd6;
+  --color-ink: #15232a;
+  --color-slate: #5b6a6e;
+  --color-line: #cbd2ca;
+  --color-signal: #d81f52;
+
+  --font-display: "Big Shoulders Display Variable", "Arial Narrow", Arial, sans-serif;
+  --font-body: "Newsreader Variable", Georgia, "Times New Roman", serif;
+
+  /* Movimiento: salida rápida y suave; el resorte solo para soltar un elemento presionado. */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-press: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 240ms;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.1875rem;
+    line-height: 1.6;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  /* Foco por teclado: el anillo aparece desde fuera hacia su sitio en 120 ms */
+  :focus-visible {
+    outline: 3px solid var(--color-signal);
+    outline-offset: 3px;
+    border-radius: 2px;
+    animation: foco 120ms var(--ease-out);
+  }
+
+  ::selection {
+    background: var(--color-signal);
+    color: #fff;
+  }
+}
+
+@layer components {
+  /* Anotaciones de libreta de campo: periodos, etiquetas, datos de apoyo */
+  .meta {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--color-slate);
+  }
+
+  /* Enlace de texto: subrayado fino fijo y, encima, la cinta rosa que se dibuja al pasar */
+  .link {
+    padding-bottom: 2px;
+    text-decoration: none;
+    background:
+      linear-gradient(var(--color-signal), var(--color-signal)) 0 100% / 0% 2px no-repeat,
+      linear-gradient(var(--color-line), var(--color-line)) 0 100% / 100% 2px no-repeat;
+    transition: background-size var(--dur-base) var(--ease-out);
+  }
+  .link:hover {
+    background-size:
+      100% 2px,
+      100% 2px;
+  }
+
+  /* Enlace de navegación: solo la cinta, que se dibuja de izquierda a derecha */
+  .nav-link {
+    padding-block: 0.25rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    text-decoration: none;
+    background: linear-gradient(var(--color-signal), var(--color-signal)) 0 100% / 0% 2px no-repeat;
+    transition: background-size var(--dur-base) var(--ease-out);
+  }
+  .nav-link:hover {
+    background-size: 100% 2px;
+  }
+
+  /*
+    Botones: el relleno sube desde abajo (180 ms) y al presionar se hunden (100 ms).
+    Al soltar, vuelven con un resorte corto. Solo transform y color.
+  */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.5rem 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.04em;
+    border: 2px solid var(--color-ink);
+    border-radius: 2px;
+    text-decoration: none;
+    transition:
+      transform 160ms var(--ease-spring),
+      color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--fill);
+    transform: translateY(101%);
+    transition: transform 180ms var(--ease-out);
+  }
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: translateY(0);
+  }
+  .btn:active {
+    transform: scale(0.97);
+    transition-duration: var(--dur-press);
+  }
+
+  .btn-solid {
+    --fill: var(--color-signal);
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-solid:hover {
+    color: #fff;
+    border-color: var(--color-signal);
+  }
+  .btn-line {
+    --fill: var(--color-ink);
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .btn-line:hover {
+    color: var(--color-paper);
+  }
+
+  /* Cuadrícula de levantamiento, tenue, que se desvanece hacia abajo */
+  .plano {
+    background-image:
+      linear-gradient(to right, rgb(21 35 42 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(21 35 42 / 0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+  }
+
+  /* El lindero del retrato se traza al cargar: el único movimiento no provocado por el usuario */
+  .lindero {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: trazar 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards;
+  }
+  .estaca {
+    opacity: 0;
+    animation: aparecer 0.3s var(--ease-out) forwards;
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  /* Segunda impresión del plano, desplazada. Al pasar el cursor, se registra sobre el lote. */
+  .registro {
+    transform: translate(12px, 12px);
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  .lote:hover .registro {
+    transform: translate(0, 0);
+  }
+  .lote:hover .estaca {
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+
+  @keyframes trazar {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes aparecer {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes foco {
+    from {
+      outline-offset: 8px;
+      outline-color: transparent;
+    }
+  }
+  @keyframes abrir {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .lindero {
+    stroke-dashoffset: 0;
+  }
+  .estaca {
+    opacity: 1;
+  }
+}

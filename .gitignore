@@ -1,0 +1,20 @@
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Astro
+.astro/
+
+# Deployment
+.vercel/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Operating system
+.DS_Store

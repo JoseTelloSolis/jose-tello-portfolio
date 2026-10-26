@@ -1,0 +1,187 @@
+---
+import { content, person, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const c = content[lang].contact;
+
+const channels = [
+  { label: c.channels.whatsapp, text: person.phone, href: person.whatsapp },
+  { label: c.channels.linkedin, text: 'linkedin.com/in/jose-ernesto-tello-solis', href: person.linkedin },
+  { label: c.channels.github, text: 'github.com/JoseTelloSolis', href: person.github },
+];
+---
+
+<section id="contact" aria-labelledby="contact-title" class="contact">
+  <div class="wrap">
+    <h2 id="contact-title">{c.title}</h2>
+    <p class="text">{c.text}</p>
+
+    <div class="mail">
+      <a class="email" href={`mailto:${person.email}`}>{person.email}</a>
+      <button type="button" class="copy" data-copy={person.email} data-label={c.copy} data-done={c.copied}>
+        {c.copy}
+      </button>
+      <span class="sr-only" role="status" aria-live="polite" data-status></span>
+    </div>
+
+    <dl class="channels">
+      {
+        channels.map((ch) => (
+          <div>
+            <dt>{ch.label}</dt>
+            <dd>
+              <a href={ch.href} class="link" target="_blank" rel="noopener">
+                {ch.text}
+              </a>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  /* Cierre de la hoja: papel más oscuro, la misma línea de grafito de las demás cabeceras */
+  .contact {
+    margin-top: 6rem;
+    padding-block: 4rem 5rem;
+    background: var(--color-paper-deep);
+    border-top: 2px solid var(--color-ink);
+  }
+  .wrap {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(4rem, 14vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+  }
+  .text {
+    margin-top: 1.5rem;
+    max-width: 32rem;
+    font-size: 1.375rem;
+    line-height: 1.4;
+  }
+
+  .mail {
+    margin-top: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+  .email {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.875rem, 5.5vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    padding-bottom: 0.15em;
+    background:
+      linear-gradient(var(--color-signal), var(--color-signal)) 0 100% / 0% 4px no-repeat,
+      linear-gradient(var(--color-ink), var(--color-ink)) 0 100% / 100% 4px no-repeat;
+    transition: background-size var(--dur-slow) var(--ease-out);
+  }
+  .email:hover {
+    background-size:
+      100% 4px,
+      100% 4px;
+  }
+
+  /* Copiar correo: el texto cambia al instante y el botón se hunde al presionar */
+  .copy {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 2px;
+    background: transparent;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform 160ms var(--ease-spring);
+  }
+  .copy:hover,
+  .copy[data-copied] {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .copy:active {
+    transform: scale(0.96);
+    transition-duration: var(--dur-press);
+  }
+
+  .channels {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-ink);
+    display: grid;
+    gap: 1.5rem;
+  }
+  dt {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+  }
+  dd {
+    margin-top: 0.125rem;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 768px) {
+    .contact {
+      margin-top: 8rem;
+      padding-block: 6rem 6rem;
+    }
+    .wrap {
+      padding-inline: 2rem;
+    }
+    .channels {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('button[data-copy]').forEach((btn) => {
+    const status = btn.parentElement?.querySelector<HTMLElement>('[data-status]');
+    let timer: number | undefined;
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+      } catch {
+        // Sin portapapeles disponible: el enlace mailto sigue funcionando
+        return;
+      }
+      btn.textContent = btn.dataset.done ?? '';
+      btn.setAttribute('data-copied', '');
+      if (status) status.textContent = btn.dataset.done ?? '';
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        btn.textContent = btn.dataset.label ?? '';
+        btn.removeAttribute('data-copied');
+        if (status) status.textContent = '';
+      }, 1800);
+    });
+  });
+</script>

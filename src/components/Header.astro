@@ -1,0 +1,278 @@
+---
+import { content, homePath, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const c = content[lang];
+const other: Lang = lang === 'es' ? 'en' : 'es';
+
+const links = [
+  { href: '#about', label: c.nav.about },
+  { href: '#experience', label: c.nav.experience },
+  { href: '#projects', label: c.nav.projects },
+  { href: '#skills', label: c.nav.skills },
+  { href: '#contact', label: c.nav.contact },
+];
+const navLabel = lang === 'es' ? 'Principal' : 'Main';
+---
+
+<a href="#contenido" class="skip">{c.ui.skip}</a>
+
+<header class="site-header" data-site-header>
+  <div class="bar">
+    <a href={homePath(lang)} aria-label={c.ui.home} class="mark">
+      JT<span class="estaca-logo" aria-hidden="true"></span>
+    </a>
+
+    <nav class="nav-desktop" aria-label={navLabel}>
+      {
+        links.map((l) => (
+          <a href={l.href} class="nav-link">
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="tools">
+      <a
+        href={homePath(other)}
+        hreflang={other}
+        lang={other}
+        aria-label={c.ui.switchLabel}
+        class="chip"
+      >
+        {c.ui.switchText}
+      </a>
+
+      <details class="menu">
+        <summary class="chip">{c.ui.menu}</summary>
+        <nav class="panel" aria-label={navLabel}>
+          {
+            links.map((l) => (
+              <a href={l.href} class="panel-link">
+                {l.label}
+              </a>
+            ))
+          }
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -9999px;
+    top: 1rem;
+    z-index: 60;
+    padding: 0.5rem 1rem;
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .skip:focus {
+    left: 1rem;
+  }
+
+  /* Cabecera: transparente sobre el plano; al hacer scroll toma papel y una línea fina */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .site-header[data-scrolled] {
+    background: color-mix(in srgb, var(--color-paper) 92%, transparent);
+    border-color: var(--color-line);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .bar {
+    max-width: 72rem;
+    height: 4.5rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  @media (min-width: 768px) {
+    .bar {
+      padding-inline: 2rem;
+    }
+  }
+
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .estaca-logo {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-signal);
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+  .mark:hover .estaca-logo {
+    transform: scale(1.5);
+  }
+
+  .nav-desktop {
+    display: none;
+    align-items: center;
+    gap: 2rem;
+  }
+  @media (min-width: 768px) {
+    .nav-desktop {
+      display: flex;
+    }
+  }
+  /* Sección visible: la cinta queda dibujada */
+  .nav-link[aria-current='true'] {
+    background-size: 100% 2px;
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Selector de idioma y botón de menú */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 2px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: 0.06em;
+    color: var(--color-ink);
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform 160ms var(--ease-spring);
+  }
+  .chip::-webkit-details-marker {
+    display: none;
+  }
+  .chip:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .chip:active {
+    transform: scale(0.95);
+    transition-duration: var(--dur-press);
+  }
+
+  /* Menú móvil */
+  .menu {
+    position: relative;
+  }
+  @media (min-width: 768px) {
+    .menu {
+      display: none;
+    }
+  }
+  .menu[open] > .chip {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.75rem);
+    width: 15rem;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    background: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    border-radius: 2px;
+    transform-origin: top right;
+    animation: abrir 160ms var(--ease-out);
+  }
+  .panel-link {
+    padding: 0.75rem 0.875rem;
+    border-left: 3px solid transparent;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.375rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .panel-link:hover,
+  .panel-link[aria-current='true'] {
+    background: var(--color-paper-deep);
+    border-left-color: var(--color-signal);
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav-link, .panel-link'));
+
+  // Línea y papel al hacer scroll
+  const syncScroll = () => {
+    if (!header) return;
+    header.toggleAttribute('data-scrolled', window.scrollY > 8);
+  };
+  syncScroll();
+  window.addEventListener('scroll', syncScroll, { passive: true });
+
+  // Sección visible: marca el enlace correspondiente
+  const sections = links
+    .map((a) => document.querySelector<HTMLElement>(a.getAttribute('href') ?? ''))
+    .filter((el): el is HTMLElement => !!el);
+  const mark = (id: string | null) =>
+    links.forEach((a) => {
+      if (a.getAttribute('href') === `#${id}`) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && mark(e.target.id)),
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    Array.from(new Set(sections)).forEach((s) => io.observe(s));
+  }
+
+  // Cierra el menú móvil al elegir una sección o al pulsar Escape
+  document.querySelectorAll<HTMLDetailsElement>('details.menu').forEach((menu) => {
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.removeAttribute('open')));
+    menu.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        menu.removeAttribute('open');
+        menu.querySelector('summary')?.focus();
+      }
+    });
+  });
+</script>
